@@ -2,6 +2,7 @@ package com.example.wenba.joke4kotlin
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.SimpleAdapter
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jsoup.Jsoup
@@ -10,32 +11,43 @@ import org.jsoup.nodes.Element
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
     val tag = "MainActivity"
 
-    val url = "https://www.pengfu.com/xiaohua_1.html"
-
     val data = ArrayList<Map<String, String>>()
 
-    var adapter: SimpleAdapter? = null
+    private var adapter: SimpleAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        adapter = SimpleAdapter(this, data, android.R.layout.simple_list_item_2, arrayOf("title", "content"),
-                intArrayOf(android.R.id.text1, android.R.id.text2))
+        listView.setHasLoadMore(false)
+        adapter = SimpleAdapter(this, data, R.layout.item_joke, arrayOf("title", "content"),
+                intArrayOf(R.id.text1, R.id.text2))
         listView.adapter = adapter
-        Observable.just(url)
+        load(1)
+        swipeRefreshLayout.isRefreshing = true
+        swipeRefreshLayout.setOnRefreshListener({
+            load(Random().nextInt(51))
+        })
+    }
+
+    private fun load(index: Int) {
+        Log.e(tag, index.toString())
+        Observable.just(index)
                 .subscribeOn(Schedulers.newThread())
                 /**
                  * step 1
                  * 根据 <div class= "clearfix dl-con">...</div> 抓取网页上的一个笑话div
                  * 其中包括 title，content
                  */
-                .flatMap({ str ->
-                    val document: Document = Jsoup.connect(str).get()
+                .flatMap({ index ->
+                    var url = "https://www.pengfu.com/xiaohua_$index.html"
+                    val document: Document = Jsoup.connect(url).get()
                     val element = document.body()
                     val divElement = element.getElementsByClass("clearfix dl-con")
                     Observable.from(divElement)
@@ -59,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                  */
                 .flatMap({ map ->
                     for (etitle in map.keys) {
-                        val econtent = map.get(etitle)!!
+                        val econtent = map[etitle]!!
                         val item = HashMap<String, String>()
                         item.put("title", etitle.text())
                         item.put("content", econtent.text())
@@ -68,7 +80,13 @@ class MainActivity : AppCompatActivity() {
                     Observable.just(data)
                 }).observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    adapter!!.notifyDataSetChanged()
+                    Log.e(tag, "onNext")
+                }, {
+                    Log.e(tag, "onError")
+                }, {
+                    Log.e(tag, "onComplete")
+                    adapter?.notifyDataSetChanged()
+                    swipeRefreshLayout.onRefreshComplete()
                 })
     }
 }
