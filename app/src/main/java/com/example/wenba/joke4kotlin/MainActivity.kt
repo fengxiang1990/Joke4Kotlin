@@ -13,6 +13,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun load(index: Int) {
         Log.e(tag, index.toString())
+        val map = LinkedHashMap<Element, Element>()
         Observable.just(index)
                 .subscribeOn(Schedulers.newThread())
                 /**
@@ -57,36 +59,59 @@ class MainActivity : AppCompatActivity() {
                  * 根据 title 的 class =“dp-b” 抓取笑话标题Element
                  * 根据 content 的 class =“content-img clearfix pt10 relative” 抓取笑话内容Element
                  */
-                .flatMap({ elements ->
-                    val element0 = elements.firstElementSibling()
+                .flatMap({ element ->
+                    val element0 = element.firstElementSibling()
                     val titleElementsDirty = element0.getElementsByClass("dp-b")
                     val contentElementsDirty = element0.getElementsByClass("content-img clearfix pt10 relative")
-                    val map = LinkedHashMap<Element, Element>()
                     map.put(titleElementsDirty.first(), contentElementsDirty.first())
+                    Log.e(tag, "step 2 onNext")
+                    Observable.just("step 2 onNext")
+                }, {
+                    Observable.just(Exception("step2 flat error"))
+                }, {
+                    Log.e(tag, "step 2 onComplete")
                     Observable.just(map)
+                })
+                .filter({ serialize ->
+                    serialize is LinkedHashMap<*, *>
                 })
                 /**
                  * step 3
                  * 将获取到的笑话数据转换 添加到listview 中
                  */
-                .flatMap({ map ->
-                    for (etitle in map.keys) {
-                        val econtent = map[etitle]!!
-                        val item = HashMap<String, String>()
-                        item.put("title", etitle.text())
-                        item.put("content", econtent.text())
-                        data.add(item)
-                    }
-                    Observable.just(data)
-                }).observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Log.e(tag, "onNext")
-                }, {
-                    Log.e(tag, "onError")
-                }, {
-                    Log.e(tag, "onComplete")
-                    adapter?.notifyDataSetChanged()
-                    swipeRefreshLayout.onRefreshComplete()
+                .flatMap({ serialize ->
+                    Log.e(tag, "step 3")
+                    data.clear()
+                    val map = serialize as LinkedHashMap<Element, Element>
+                    Observable.from(map.keys)
                 })
+                .flatMap({ title ->
+                    val econtent = map[title]!!
+                    val item = HashMap<String, String>()
+                    item.put("title", title.text())
+                    item.put("content", econtent.text())
+                    data.add(item)
+                    Observable.just(item)
+                }, { e ->
+                    Observable.just(e)
+                }, {
+                    Observable.just(data)
+                })
+                .filter({ serialize ->
+                    serialize is ArrayList<*>
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        {
+                            Log.e(tag, "subscribe onNext")
+                        },
+                        { e ->
+                            e.printStackTrace()
+                        },
+                        {
+                            Log.e(tag, "subscribe onComplete")
+                            adapter?.notifyDataSetChanged()
+                            swipeRefreshLayout.onRefreshComplete()
+                        })
     }
 }
