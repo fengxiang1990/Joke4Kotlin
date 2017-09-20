@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,12 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <cn.finalteam.loadingviewfinal.ListViewFinal
-            android:id="@+id/listView"
+        <cn.finalteam.loadingviewfinal.RecyclerViewFinal
+            android:id="@+id/recycleView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="#f5f5f5"
-            android:dividerHeight="10dp"></cn.finalteam.loadingviewfinal.ListViewFinal>
+            app:noLoadMoreHideView="true" />
 
     </cn.finalteam.loadingviewfinal.SwipeRefreshLayoutFinal>
 </LinearLayout>

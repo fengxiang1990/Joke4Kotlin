@@ -20,15 +20,6 @@ android {
         }
     }
 
-//    jackOptions {
-//        enabled true
-//    }
-//
-//    compileOptions {
-//        sourceCompatibility JavaVersion.VERSION_1_8
-//        targetCompatibility JavaVersion.VERSION_1_8
-//    }
-
 }
 
 dependencies {
@@ -44,6 +35,9 @@ dependencies {
     compile "org.jetbrains.anko:anko:$anko_version"
     compile "io.reactivex:rxjava:$rxjavaVersion"
     compile "io.reactivex:rxandroid:$rxandroidVersion"
+    compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'cn.finalteam.loadingviewfinal:loading-more-view:1.0.1'
     compile 'cn.finalteam.loadingviewfinal:swipe-refresh-layout:1.0.1'
+    compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
+
 }

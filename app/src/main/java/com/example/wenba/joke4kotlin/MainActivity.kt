@@ -1,13 +1,15 @@
 package com.example.wenba.joke4kotlin
 
-import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.TextView
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -25,12 +27,14 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        listView.setHasLoadMore(false)
-        listView.overScrollMode = View.OVER_SCROLL_NEVER
-
-
+        recycleView.overScrollMode = View.OVER_SCROLL_NEVER
+        recycleView.layoutManager = LinearLayoutManager(this)
+        recycleView.addItemDecoration(HorizontalDividerItemDecoration.Builder(this)
+                .color(Color.WHITE)
+                .sizeResId(R.dimen.recycler_divider_height)
+                .build())
         adapter = JokeAdapter(jokes)
-        listView.adapter = adapter
+        recycleView.adapter = adapter
         presenter = JokePresenter(this)
         presenter?.start()
         swipeRefreshLayout.isRefreshing = true
@@ -57,7 +61,7 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
         this.presenter = presenter
     }
 
-    inner class JokeAdapter : BaseAdapter {
+    inner class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder> {
 
         var jokes: List<Joke>
 
@@ -65,40 +69,27 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
             this.jokes = jokes
         }
 
-        override fun getItem(position: Int): Joke {
-            return jokes[position]
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): JokeViewHolder {
+            val view = LayoutInflater.from(this@MainActivity).inflate(R.layout.item_joke, parent, false);
+            return JokeViewHolder(view)
         }
 
-        override fun getItemId(position: Int): Long {
-            return 0
+        override fun onBindViewHolder(holder: JokeViewHolder?, position: Int) {
+            val joke = jokes[position]
+            holder!!.text1.text = joke.title
+            holder!!.text2.text = joke.content
         }
 
-        override fun getCount(): Int {
+        override fun getItemCount(): Int {
             return jokes.size
         }
 
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
-            var viewHolder: ViewHolder
-            var view: View
-            if (convertView == null) {
-                viewHolder = ViewHolder()
-                view = LayoutInflater.from(this@MainActivity).inflate(R.layout.item_joke, parent, false)
-                view.tag = viewHolder
-                viewHolder.text1 = view.findViewById(R.id.text1) as TextView
-                viewHolder.text2 = view.findViewById(R.id.text2) as TextView
-            } else {
-                view = convertView
-                viewHolder = view.tag as ViewHolder
-            }
-            val joke = jokes[position]
-            viewHolder.text1?.text = joke.title
-            viewHolder.text2?.text = joke.content
-            return view
+
+        inner class JokeViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+            var text1 = itemView!!.findViewById(R.id.text1) as TextView
+            var text2 = itemView!!.findViewById(R.id.text2) as TextView
         }
     }
 
-    inner class ViewHolder {
-        var text1: TextView? = null
-        var text2: TextView? = null
-    }
+
 }
