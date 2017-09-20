@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
@@ -35,7 +36,7 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
                 .build())
         adapter = JokeAdapter(jokes)
         recycleView.adapter = adapter
-        presenter = JokePresenter(this)
+        presenter = JokePresenter(this, this)
         presenter?.start()
         swipeRefreshLayout.isRefreshing = true
         swipeRefreshLayout.setOnRefreshListener({
@@ -78,6 +79,9 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
             val joke = jokes[position]
             holder!!.text1.text = joke.title
             holder!!.text2.text = joke.content
+            holder!!.img_copy.setOnClickListener({
+                presenter!!.copy(joke)
+            })
         }
 
         override fun getItemCount(): Int {
@@ -88,6 +92,7 @@ class MainActivity : AppCompatActivity(), JokeContract.View {
         inner class JokeViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
             var text1 = itemView!!.findViewById(R.id.text1) as TextView
             var text2 = itemView!!.findViewById(R.id.text2) as TextView
+            var img_copy = itemView!!.findViewById(R.id.img_copy) as ImageView
         }
     }
 

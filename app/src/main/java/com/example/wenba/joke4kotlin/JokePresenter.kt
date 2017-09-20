@@ -1,6 +1,10 @@
 package com.example.wenba.joke4kotlin
 
+import android.app.Activity
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
+import org.jetbrains.anko.toast
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -13,10 +17,14 @@ class JokePresenter : JokeContract.Presenter {
     val tag = "JokePresenter"
 
     private val view: JokeContract.View
+    private val context: Activity
+    private val cm: ClipboardManager
 
-    constructor(view: JokeContract.View) {
+    constructor(context: Activity, view: JokeContract.View) {
         this.view = view
+        this.context = context
         this.view.setPresenter(this)
+        this.cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     }
 
 
@@ -27,6 +35,12 @@ class JokePresenter : JokeContract.Presenter {
     override fun loadJokes(index: Int) {
         load(index)
     }
+
+    override fun copy(joke: Joke) {
+        cm.text = joke.title + "\n\n" + joke.content
+        context.toast("已复制")
+    }
+
 
     private fun load(index: Int) {
         Log.e(tag, index.toString())

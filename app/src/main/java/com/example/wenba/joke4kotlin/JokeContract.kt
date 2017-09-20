@@ -12,5 +12,6 @@ interface JokeContract {
     interface Presenter : BasePresenter {
 
         fun loadJokes(index: Int = 1)
+        fun copy(joke : Joke)
     }
 }

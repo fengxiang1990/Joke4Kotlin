@@ -10,13 +10,29 @@
     android:paddingRight="18dp"
     android:paddingTop="9dp">
 
-    <TextView
-        android:id="@+id/text1"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#ad1457"
-        android:textSize="20sp"
-        tools:text="ssss" />
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="#ad1457"
+            android:textSize="20sp"
+            tools:text="ssss" />
+
+        <ImageView
+            android:clickable="true"
+            android:id="@+id/img_copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/copy" />
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/text2"
@@ -26,5 +42,6 @@
         android:textColor="#00595c"
         android:textSize="20sp"
         tools:text="ssss" />
+
 
 </LinearLayout>
